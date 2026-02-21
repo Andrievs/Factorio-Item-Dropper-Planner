@@ -110,9 +110,6 @@ end
 -- ─────────────────────────────────────────────
 
 local function activate_drag_tool(player)
-    local filters = is_spawn_mode(player) and get_pending_filters(player) or get_filters(player)
-    storage.pending_drag = storage.pending_drag or {}
-    storage.pending_drag[player.index] = filters
     local cursor = player.cursor_stack
     if cursor and cursor.valid_for_read and cursor.name == "item-dropper-tool" then
         local inv = player.get_main_inventory()
@@ -496,11 +493,14 @@ script.on_event(defines.events.on_gui_click, function(event)
     end
 
     if el.name == "item_dropper_use" then
+        local filters = spawn_mode and get_pending_filters(player) or get_filters(player)
         maybe_spawn(player)
-        clear_editing_id(player)
         player.opened = nil
         frame.destroy()
+        storage.pending_drag = storage.pending_drag or {}
+        storage.pending_drag[player.index] = filters
         activate_drag_tool(player)
+        clear_editing_id(player)
         return
     end
 
